@@ -1,2 +1,2 @@
-# iDK
+# Eternal
 FOR EDUCATION
