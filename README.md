@@ -21,7 +21,7 @@
 
 ## 🔐 Login
 
-Untuk mencoba tools ini, gunakan kredensial berikut:
+Gunakan kredensial berikut untuk mengakses tools:
 
 - **Username:** `USER`
 - **Password:** `FREE`
@@ -38,6 +38,51 @@ Jika tidak berhasil, hubungi pemilik tools.
 ```bash
 pkg update && pkg upgrade -y
 pkg install python git -y
+```
+
+2️⃣ Clone Repository
+
+```bash
 git clone https://github.com/upilcuy/Eterx.git
 cd Eterx
+```
+
+3️⃣ Jalankan Tools
+
+```bash
 python main.py
+```
+
+4️⃣ CARA INSTALL + JALANKAN SEKALIGUS (COPY-PASTE)
+
+```bash
+pkg update && pkg upgrade -y && pkg install python git -y && git clone https://github.com/upilcuy/Eterx.git && cd Eterx && python main.py
+```
+
+5️⃣ Cara Stop Infinite Loop
+
+· Tekan CTRL + C di keyboard Termux.
+
+6️⃣ Cara Keluar Dari Termux
+
+```bash
+exit
+```
+
+---
+
+📖 Cara Penggunaan
+
+1. Jalankan python main.py
+2. Loading screen akan muncul (3-4 detik)
+3. Login dengan kredensial di atas
+4. Pilih menu:
+   · [1] Single Round — Kirim OTP 1x ke semua target
+   · [2] Infinite Loop — Kirim OTP terus menerus
+   · [3] Target List — Lihat daftar 39+ platform
+   · [4] Settings — Lihat konfigurasi
+   · [5] Exit — Keluar
+5. Masukkan nomor target (format: 08xx atau 62xx)
+6. Tunggu hasilnya!
+
+---
