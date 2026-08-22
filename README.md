@@ -1,2 +1,2 @@
 # Eterx
-IDK
+FOR EDUCATION
