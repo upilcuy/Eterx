@@ -1,2 +1,2 @@
-# Eterx
+# iDK
 FOR EDUCATION
