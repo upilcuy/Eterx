@@ -41,7 +41,7 @@ def clean_exit():
             t.join(timeout=0.1)
     sys.exit(0)
 
-# ===== LOADING SCREEN AWAL SEBELUM MENU =====
+# ===== LOADING SCREEN AWAL =====
 def loading_screen_awal():
     clear_screen()
     print("""
@@ -67,7 +67,6 @@ def loading_screen_awal():
     print("    ══════════════════════════════════════════════════════════")
     print("")
     
-    # LOADING BAR AWAL
     bar_length = 40
     teks_list = [
         "MENYIAPKAN BOMBER",
@@ -105,7 +104,7 @@ def loading_screen_awal():
     time.sleep(0.8)
     clear_screen()
 
-# ===== LOGIN PAGE (DUA MODE) =====
+# ===== LOGIN PAGE (DUA MODE TAPI GAK KELIATAN) =====
 def login():
     clear_screen()
     print("""
@@ -115,9 +114,6 @@ def login():
     ║                                                          ║
     ║         Masukkan Username & Password untuk masuk        ║
     ║                                                          ║
-    ║   [MODE PREMIUM]  UPIL / OWNER                          ║
-    ║   [MODE FREE]     USER / FREE                           ║
-    ║                                                          ║
     ╚══════════════════════════════════════════════════════════╝
     """)
     attempts = 0
@@ -126,13 +122,15 @@ def login():
         username = input("    👤 Username: ")
         password = input("    🔑 Password: ")
         
+        # PREMIUM (RAHASIA) - USERNAME: UPIL, PASSWORD: OWNER
         if username == "UPIL" and password == "OWNER":
-            print("\n    ✅ LOGIN BERHASIL! Mode PREMIUM aktif! 🔥")
+            print("\n    ✅ LOGIN BERHASIL! Selamat datang Bestie! 🔥")
             time.sleep(1)
             clear_screen()
             return "premium"
+        # FREE (PUBLIK)
         elif username == "USER" and password == "FREE":
-            print("\n    ✅ LOGIN BERHASIL! Mode FREE aktif! ⚡")
+            print("\n    ✅ LOGIN BERHASIL! Selamat datang Bestie! 🔥")
             time.sleep(1)
             clear_screen()
             return "free"
@@ -145,7 +143,6 @@ def login():
                 sys.exit(1)
             time.sleep(1)
             clear_screen()
-            # Tampilkan ulang banner login
             print("""
     ╔══════════════════════════════════════════════════════════╗
     ║                                                          ║
@@ -153,15 +150,12 @@ def login():
     ║                                                          ║
     ║         Masukkan Username & Password untuk masuk        ║
     ║                                                          ║
-    ║   [MODE PREMIUM]  UPIL / OWNER                          ║
-    ║   [MODE FREE]     USER / FREE                           ║
-    ║                                                          ║
     ╚══════════════════════════════════════════════════════════╝
             """)
     return None
 
-# ===== BANNER =====
-def banner(mode):
+# ===== BANNER (TANPA EMBEL-EMBEL MODE) =====
+def banner():
     clear_screen()
     print(CREDIT)
     print("""
@@ -179,20 +173,12 @@ def banner(mode):
     ║                                                          ║
     ║         📌 CREDIT: @upilcuy 📌                          ║
     ║                                                          ║
-    ║         🎯 MODE: """ + (f"PREMIUM 🔥" if mode == "premium" else "FREE ⚡") + """                     ║
-    ║                                                          ║
     ╚══════════════════════════════════════════════════════════╝
     """)
     print("    ╔══════════════════════════════════════════════════════════╗")
-    if mode == "premium":
-        print("    ║  [1] 🔥 SINGLE ROUND      [2] ♾️ INFINITE LOOP          ║")
-        print("    ║  [3] 📊 TARGET LIST       [4] 🛠️ SETTINGS              ║")
-        print("    ║  [5] 💀 EXIT                                            ║")
-    else:
-        print("    ║  [1] 🔥 SINGLE ROUND                                   ║")
-        print("    ║  [2] ♾️ INFINITE LOOP (PREMIUM)                        ║")
-        print("    ║  [3] 📊 TARGET LIST       [4] 🛠️ SETTINGS              ║")
-        print("    ║  [5] 💀 EXIT                                            ║")
+    print("    ║  [1] 🔥 SINGLE ROUND      [2] ♾️ INFINITE LOOP          ║")
+    print("    ║  [3] 📊 TARGET LIST       [4] 🛠️ SETTINGS              ║")
+    print("    ║  [5] 💀 EXIT                                            ║")
     print("    ╚══════════════════════════════════════════════════════════╝")
     print("")
 
@@ -399,10 +385,10 @@ def send_otp_to_target(target, raw_nomor, result_list, index, progress):
                 loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
             print(f"\n    ❌ {target['name']} - ERROR")
 
-# ===== SINGLE ROUND =====
-def single_round(nomor, mode):
+# ===== SINGLE ROUND (UNTUK SEMUA) =====
+def single_round(nomor):
     raw = ''.join(filter(str.isdigit, nomor))
-    banner(mode)
+    banner()
     print(f"    🔥 TARGET: {nomor}")
     print(f"    📦 TOTAL TARGET: {len(TARGETS)}")
     print(f"    🚀 MODE: SINGLE ROUND (1x spam)")
@@ -435,13 +421,8 @@ def single_round(nomor, mode):
     print("    ══════════════════════════════════════════════════════════")
     input("\n    TEKAN ENTER UNTUK KEMBALI...")
 
-# ===== INFINITE LOOP (PREMIUM ONLY) =====
-def infinite_loop(nomor, mode):
-    if mode != "premium":
-        print("\n    ⛔ FITUR PREMIUM! Login dengan UPIL/OWNER untuk mengakses Infinite Loop.")
-        time.sleep(2)
-        return
-    
+# ===== INFINITE LOOP (PREMIUM ONLY - TAPI GAK KELIHATAN) =====
+def infinite_loop(nomor):
     raw = ''.join(filter(str.isdigit, nomor))
     round_num = 1
     total_success = 0
@@ -449,7 +430,7 @@ def infinite_loop(nomor, mode):
     
     try:
         while True:
-            banner(mode)
+            banner()
             print(f"    ♾️ INFINITE LOOP ACTIVE")
             print(f"    🔥 TARGET: {nomor}")
             print(f"    📦 TOTAL TARGET: {len(TARGETS)}")
@@ -502,8 +483,8 @@ def infinite_loop(nomor, mode):
         clean_exit()
 
 # ===== TARGET LIST =====
-def target_list(mode):
-    banner(mode)
+def target_list():
+    banner()
     print("    📊 DAFTAR TARGET (39+ PLATFORM):")
     print("    ══════════════════════════════════════════════════════════")
     for i, target in enumerate(TARGETS):
@@ -514,8 +495,8 @@ def target_list(mode):
     input("\n    TEKAN ENTER UNTUK KEMBALI...")
 
 # ===== SETTINGS =====
-def settings(mode):
-    banner(mode)
+def settings():
+    banner()
     print("    🛠️ SETTINGS:")
     print("    ══════════════════════════════════════════════════════════")
     print(f"    TOTAL TARGET: {len(TARGETS)}")
@@ -523,7 +504,6 @@ def settings(mode):
     print(f"    MAX THREAD: 10 (SEMAPHORE)")
     print(f"    TIMEOUT: 8 DETIK")
     print(f"    USER-AGENT: MOBILE ANDROID")
-    print(f"    MODE: {mode.upper()}")
     print("    ══════════════════════════════════════════════════════════")
     print("")
     print("    📌 CREDIT: @upilcuy")
@@ -533,41 +513,45 @@ def settings(mode):
 if __name__ == "__main__":
     cek_watermark()
     
-    # ===== TAMPILKAN LOADING SCREEN AWAL =====
+    # ===== LOADING SCREEN =====
     loading_screen_awal()
     
-    # ===== LOGIN PAGE =====
+    # ===== LOGIN =====
     mode = login()
     if mode is None:
         sys.exit(1)
     
-    # ===== MASUK KE MENU UTAMA =====
+    # ===== MENU UTAMA =====
     while True:
-        banner(mode)
+        banner()
         pilih = input("    PILIH MENU (1-5): ")
         
         if pilih == "1":
             clear_screen()
-            banner(mode)
+            banner()
             nomor = input("    MASUKAN NOMOR TARGET (08xx/62xx): ")
             if nomor.strip():
-                single_round(nomor, mode)
+                single_round(nomor)
             else:
                 print("    ❌ NOMOR TIDAK BOLEH KOSONG!")
                 time.sleep(1)
         elif pilih == "2":
+            if mode == "free":
+                print("\n    ⛔ FITUR TIDAK TERSEDIA UNTUK AKSES INI.")
+                time.sleep(2)
+                continue
             clear_screen()
-            banner(mode)
+            banner()
             nomor = input("    MASUKAN NOMOR TARGET (08xx/62xx): ")
             if nomor.strip():
-                infinite_loop(nomor, mode)
+                infinite_loop(nomor)
             else:
                 print("    ❌ NOMOR TIDAK BOLEH KOSONG!")
                 time.sleep(1)
         elif pilih == "3":
-            target_list(mode)
+            target_list()
         elif pilih == "4":
-            settings(mode)
+            settings()
         elif pilih == "5":
             clear_screen()
             print("""
