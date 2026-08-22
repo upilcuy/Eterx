@@ -1,5 +1,6 @@
-# ===== ETERNALOTP - OTP BOMBER 39+ TARGET (DENGAN LOADING SCREEN AWAL) =====
+# ===== ETERNALOTP - OTP BOMBER 39+ TARGET =====
 # ===== CREDIT: @upilcuy | JANGAN DIAMBIL TANPA IZIN =====
+# ===== UPDATE: Ctrl+C BISA LANGSUNG KELUAR =====
 
 import urllib.request
 import urllib.parse
@@ -35,71 +36,13 @@ def cek_watermark():
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-# ===== LOADING SCREEN AWAL SEBELUM MENU =====
-def loading_screen_awal():
-    clear_screen()
-    print("""
-    ╔══════════════════════════════════════════════════════════╗
-    ║                                                          ║
-    ║   ███████╗████████╗███████╗██████╗ ███╗   ██╗ █████╗ ██║
-    ║   ██╔════╝╚══██╔══╝██╔════╝██╔══██╗████╗  ██║██╔══██╗██║
-    ║   █████╗     ██║   █████╗  ██████╔╝██╔██╗ ██║███████║██║
-    ║   ██╔══╝     ██║   ██╔══╝  ██╔══██╗██║╚██╗██║██╔══██║██║
-    ║   ███████╗   ██║   ███████╗██║  ██║██║ ╚████║██║  ██║██║
-    ║   ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝
-    ║                                                          ║
-    ║           🔥 OTP BOMBER 39+ TARGET 🔥                    ║
-    ║            ⚡ MULTI-THREADING ⚡                          ║
-    ║                                                          ║
-    ║         📌 CREDIT: @upilcuy 📌                          ║
-    ║                                                          ║
-    ╚══════════════════════════════════════════════════════════╝
-    """)
-    print("")
-    print("    ══════════════════════════════════════════════════════════")
-    print("    🔄 MEMUAT SISTEM...")
-    print("    ══════════════════════════════════════════════════════════")
-    print("")
-    
-    # LOADING BAR AWAL
-    bar_length = 40
-    for i in range(101):
-        percent = i
-        filled = int((i / 100) * bar_length)
-        bar = "█" * filled + "▒" * (bar_length - filled)
-        
-        # TEKS RANDOM BIAR KEREN
-        teks = [
-            "MENYIAPKAN BOMBER",
-            "MENGINISIALISASI TARGET",
-            "MEMUAT MODUL THREAD",
-            "MENYIAPKAN PROXY",
-            "MEMANASKAN MESIN OTP",
-            "SIAP MELEDAKKAN OTP",
-            "TARGET SIAP DI BOMB",
-            "ETERNALOTP AKTIF"
-        ]
-        idx = min(i // 15, len(teks) - 1)
-        
-        sys.stdout.write(f"\r    [{bar}] {percent}% - {teks[idx]}...")
-        sys.stdout.flush()
-        
-        # SPEED BERUBAH BIAR KAYAK PROSES BENERAN
-        if i < 30:
-            time.sleep(0.04)
-        elif i < 60:
-            time.sleep(0.02)
-        elif i < 85:
-            time.sleep(0.03)
-        else:
-            time.sleep(0.05)
-    
-    print("\n")
-    print("    ══════════════════════════════════════════════════════════")
-    print("    ✅ SISTEM SIAP BESTIE! 🔥")
-    print("    ══════════════════════════════════════════════════════════")
-    time.sleep(0.8)
-    clear_screen()
+# ===== CLEAN EXIT =====
+def clean_exit():
+    # Matikan semua thread (selain main thread)
+    for t in threading.enumerate():
+        if t != threading.main_thread():
+            t.join(timeout=0.1)
+    sys.exit(0)
 
 # ===== BANNER =====
 def banner():
@@ -137,7 +80,6 @@ def loading_bar(progress, total, text="PROCESSING", bar_length=40):
     sys.stdout.write(f"\r    [{bar}] {percent}% - {text}...")
     sys.stdout.flush()
 
-# ===== LOADING ANIMASI SEBELUM EKSEKUSI =====
 def loading_start():
     chars = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
     for i in range(15):
@@ -354,6 +296,7 @@ def single_round(nomor):
     
     for i, target in enumerate(TARGETS):
         t = threading.Thread(target=send_otp_to_target, args=(target, raw, result_list, i, progress))
+        t.daemon = True
         t.start()
         threads.append(t)
     
@@ -368,62 +311,68 @@ def single_round(nomor):
     print("    ══════════════════════════════════════════════════════════")
     input("\n    TEKAN ENTER UNTUK KEMBALI...")
 
-# ===== INFINITE LOOP =====
+# ===== INFINITE LOOP (UPDATED: Ctrl+C SUPPORT) =====
 def infinite_loop(nomor):
     raw = ''.join(filter(str.isdigit, nomor))
     round_num = 1
     total_success = 0
     total_attempts = 0
     
-    while True:
-        banner()
-        print(f"    ♾️ INFINITE LOOP ACTIVE")
-        print(f"    🔥 TARGET: {nomor}")
-        print(f"    📦 TOTAL TARGET: {len(TARGETS)}")
-        print(f"    🔄 ROUND: {round_num}")
-        print(f"    📊 TOTAL SUKSES: {total_success}")
-        print(f"    📊 TOTAL PERCOBAAN: {total_attempts}")
-        print("    ══════════════════════════════════════════════════════════")
-        print("    ⚠️  TEKAN CTRL+C UNTUK BERHENTI")
-        print("")
-        
-        loading_start()
-        print("")
-        print("    ══════════════════════════════════════════════════════════")
-        print("")
-        
-        result_list = [False] * len(TARGETS)
-        threads = []
-        progress = [threading.Lock(), 0]
-        
-        for i, target in enumerate(TARGETS):
-            t = threading.Thread(target=send_otp_to_target, args=(target, raw, result_list, i, progress))
-            t.daemon = True
-            t.start()
-            threads.append(t)
-            time.sleep(0.03)
-        
-        for t in threads:
-            try:
-                t.join(timeout=10)
-            except:
-                pass
-        
-        print("")
-        print("    ══════════════════════════════════════════════════════════")
-        success = sum(result_list)
-        total_success += success
-        total_attempts += len(TARGETS)
-        print(f"    ✅ BERHASIL: {success}/{len(TARGETS)}")
-        print(f"    ❌ GAGAL: {len(TARGETS) - success}/{len(TARGETS)}")
-        print(f"    📊 TOTAL SUKSES: {total_success}")
-        print(f"    📊 TOTAL PERCOBAAN: {total_attempts}")
-        print("    ══════════════════════════════════════════════════════════")
-        
-        round_num += 1
-        time.sleep(0.5)
+    try:
+        while True:
+            banner()
+            print(f"    ♾️ INFINITE LOOP ACTIVE")
+            print(f"    🔥 TARGET: {nomor}")
+            print(f"    📦 TOTAL TARGET: {len(TARGETS)}")
+            print(f"    🔄 ROUND: {round_num}")
+            print(f"    📊 TOTAL SUKSES: {total_success}")
+            print(f"    📊 TOTAL PERCOBAAN: {total_attempts}")
+            print("    ══════════════════════════════════════════════════════════")
+            print("    ⚠️  TEKAN CTRL+C UNTUK BERHENTI")
+            print("")
+            
+            loading_start()
+            print("")
+            print("    ══════════════════════════════════════════════════════════")
+            print("")
+            
+            result_list = [False] * len(TARGETS)
+            threads = []
+            progress = [threading.Lock(), 0]
+            
+            for i, target in enumerate(TARGETS):
+                t = threading.Thread(target=send_otp_to_target, args=(target, raw, result_list, i, progress))
+                t.daemon = True   # <<-- PENTING: THREAD MATI SAAT MAIN LOOP STOP
+                t.start()
+                threads.append(t)
+                time.sleep(0.03)
+            
+            for t in threads:
+                try:
+                    t.join(timeout=10)
+                except:
+                    pass
+            
+            success = sum(result_list)
+            total_success += success
+            total_attempts += len(TARGETS)
+            
+            print("")
+            print("    ══════════════════════════════════════════════════════════")
+            print(f"    ✅ BERHASIL: {success}/{len(TARGETS)}")
+            print(f"    ❌ GAGAL: {len(TARGETS) - success}/{len(TARGETS)}")
+            print(f"    📊 TOTAL SUKSES: {total_success}")
+            print(f"    📊 TOTAL PERCOBAAN: {total_attempts}")
+            print("    ══════════════════════════════════════════════════════════")
+            
+            round_num += 1
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        print("\n\n    ⛔ INFINITE LOOP DIHENTIKAN PAKE CTRL+C!")
+        time.sleep(1)
+        clean_exit()   # Panggil fungsi buat matiin thread & keluar
 
-# ===== TARGET LIST VIEW =====
+# ===== TARGET LIST =====
 def target_list():
     banner()
     print("    📊 DAFTAR TARGET (39+ PLATFORM):")
@@ -454,9 +403,6 @@ def settings():
 if __name__ == "__main__":
     cek_watermark()
     
-    # LOADING SCREEN AWAL SEBELUM MENU
-    loading_screen_awal()
-    
     while True:
         banner()
         pilih = input("    PILIH MENU (1-5): ")
@@ -475,11 +421,7 @@ if __name__ == "__main__":
             banner()
             nomor = input("    MASUKAN NOMOR TARGET (08xx/62xx): ")
             if nomor.strip():
-                try:
-                    infinite_loop(nomor)
-                except KeyboardInterrupt:
-                    print("\n\n    ⛔ INFINITE LOOP DIHENTIKAN!")
-                    time.sleep(1)
+                infinite_loop(nomor)   # Disini Ctrl+C bakal tertangkap
             else:
                 print("    ❌ NOMOR TIDAK BOLEH KOSONG!")
                 time.sleep(1)
@@ -500,7 +442,7 @@ if __name__ == "__main__":
     ║                                                          ║
     ╚══════════════════════════════════════════════════════════╝
             """)
-            break
+            clean_exit()
         else:
             print("    ❌ MENU TIDAK TERSEDIA!")
             time.sleep(1)
