@@ -1,6 +1,3 @@
-# ===== ETERNALOTP - OTP BOMBER 39+ TARGET =====
-# ===== CREDIT: @upilcuy | JANGAN DIAMBIL TANPA IZIN =====
-# ===== UPDATE: Ctrl+C BISA LANGSUNG KELUAR =====
 
 import urllib.request
 import urllib.parse
@@ -38,11 +35,118 @@ def clear_screen():
 
 # ===== CLEAN EXIT =====
 def clean_exit():
-    # Matikan semua thread (selain main thread)
     for t in threading.enumerate():
         if t != threading.main_thread():
             t.join(timeout=0.1)
     sys.exit(0)
+
+# ===== LOADING SCREEN AWAL SEBELUM MENU =====
+def loading_screen_awal():
+    clear_screen()
+    print("""
+    ╔══════════════════════════════════════════════════════════╗
+    ║                                                          ║
+    ║   ███████╗████████╗███████╗██████╗ ███╗   ██╗ █████╗ ██║
+    ║   ██╔════╝╚══██╔══╝██╔════╝██╔══██╗████╗  ██║██╔══██╗██║
+    ║   █████╗     ██║   █████╗  ██████╔╝██╔██╗ ██║███████║██║
+    ║   ██╔══╝     ██║   ██╔══╝  ██╔══██╗██║╚██╗██║██╔══██║██║
+    ║   ███████╗   ██║   ███████╗██║  ██║██║ ╚████║██║  ██║██║
+    ║   ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝
+    ║                                                          ║
+    ║           🔥 OTP BOMBER 39+ TARGET 🔥                    ║
+    ║            ⚡ MULTI-THREADING ⚡                          ║
+    ║                                                          ║
+    ║         📌 CREDIT: @upilcuy 📌                          ║
+    ║                                                          ║
+    ╚══════════════════════════════════════════════════════════╝
+    """)
+    print("")
+    print("    ══════════════════════════════════════════════════════════")
+    print("    🔄 MEMUAT SISTEM...")
+    print("    ══════════════════════════════════════════════════════════")
+    print("")
+    
+    # LOADING BAR AWAL
+    bar_length = 40
+    teks_list = [
+        "MENYIAPKAN BOMBER",
+        "MENGINISIALISASI TARGET",
+        "MEMUAT MODUL THREAD",
+        "MENYIAPKAN PROXY",
+        "MEMANASKAN MESIN OTP",
+        "SIAP MELEDAKKAN OTP",
+        "TARGET SIAP DI BOMB",
+        "ETERNALOTP AKTIF"
+    ]
+    
+    for i in range(101):
+        percent = i
+        filled = int((i / 100) * bar_length)
+        bar = "█" * filled + "▒" * (bar_length - filled)
+        idx = min(i // 15, len(teks_list) - 1)
+        
+        sys.stdout.write(f"\r    [{bar}] {percent}% - {teks_list[idx]}...")
+        sys.stdout.flush()
+        
+        if i < 30:
+            time.sleep(0.04)
+        elif i < 60:
+            time.sleep(0.02)
+        elif i < 85:
+            time.sleep(0.03)
+        else:
+            time.sleep(0.05)
+    
+    print("\n")
+    print("    ══════════════════════════════════════════════════════════")
+    print("    ✅ SISTEM SIAP BESTIE! 🔥")
+    print("    ══════════════════════════════════════════════════════════")
+    time.sleep(0.8)
+    clear_screen()
+
+# ===== LOGIN PAGE =====
+def login():
+    clear_screen()
+    print("""
+    ╔══════════════════════════════════════════════════════════╗
+    ║                                                          ║
+    ║              🔐 LOGIN REQUIRED 🔐                       ║
+    ║                                                          ║
+    ║         Masukkan Username & Password untuk masuk        ║
+    ║                                                          ║
+    ╚══════════════════════════════════════════════════════════╝
+    """)
+    attempts = 0
+    while attempts < 3:
+        print("")
+        username = input("    👤 Username: ")
+        password = input("    🔑 Password: ")
+        
+        if username == "UPIL" and password == "OWNER":
+            print("\n    ✅ LOGIN BERHASIL! Selamat datang Bestie! 🔥")
+            time.sleep(1)
+            clear_screen()
+            return True
+        else:
+            attempts += 1
+            print(f"\n    ❌ LOGIN GAGAL! Sisa percobaan: {3 - attempts}")
+            if attempts == 3:
+                print("\n    ⛔ Terlalu banyak percobaan! Keluar...")
+                time.sleep(2)
+                sys.exit(1)
+            time.sleep(1)
+            clear_screen()
+            # Tampilkan ulang banner login
+            print("""
+    ╔══════════════════════════════════════════════════════════╗
+    ║                                                          ║
+    ║              🔐 LOGIN REQUIRED 🔐                       ║
+    ║                                                          ║
+    ║         Masukkan Username & Password untuk masuk        ║
+    ║                                                          ║
+    ╚══════════════════════════════════════════════════════════╝
+            """)
+    return False
 
 # ===== BANNER =====
 def banner():
@@ -311,7 +415,7 @@ def single_round(nomor):
     print("    ══════════════════════════════════════════════════════════")
     input("\n    TEKAN ENTER UNTUK KEMBALI...")
 
-# ===== INFINITE LOOP (UPDATED: Ctrl+C SUPPORT) =====
+# ===== INFINITE LOOP =====
 def infinite_loop(nomor):
     raw = ''.join(filter(str.isdigit, nomor))
     round_num = 1
@@ -342,7 +446,7 @@ def infinite_loop(nomor):
             
             for i, target in enumerate(TARGETS):
                 t = threading.Thread(target=send_otp_to_target, args=(target, raw, result_list, i, progress))
-                t.daemon = True   # <<-- PENTING: THREAD MATI SAAT MAIN LOOP STOP
+                t.daemon = True
                 t.start()
                 threads.append(t)
                 time.sleep(0.03)
@@ -370,7 +474,7 @@ def infinite_loop(nomor):
     except KeyboardInterrupt:
         print("\n\n    ⛔ INFINITE LOOP DIHENTIKAN PAKE CTRL+C!")
         time.sleep(1)
-        clean_exit()   # Panggil fungsi buat matiin thread & keluar
+        clean_exit()
 
 # ===== TARGET LIST =====
 def target_list():
@@ -403,6 +507,15 @@ def settings():
 if __name__ == "__main__":
     cek_watermark()
     
+    # ===== TAMPILKAN LOADING SCREEN AWAL =====
+    loading_screen_awal()
+    
+    # ===== TAMPILKAN LOGIN PAGE =====
+    if not login():
+        # Jika login gagal, exit
+        sys.exit(1)
+    
+    # ===== MASUK KE MENU UTAMA =====
     while True:
         banner()
         pilih = input("    PILIH MENU (1-5): ")
@@ -421,7 +534,7 @@ if __name__ == "__main__":
             banner()
             nomor = input("    MASUKAN NOMOR TARGET (08xx/62xx): ")
             if nomor.strip():
-                infinite_loop(nomor)   # Disini Ctrl+C bakal tertangkap
+                infinite_loop(nomor)
             else:
                 print("    ❌ NOMOR TIDAK BOLEH KOSONG!")
                 time.sleep(1)
